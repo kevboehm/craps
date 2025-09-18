@@ -801,11 +801,22 @@ class CrapsSimulator {
                         // Don't place come bet on the main point, 7, or if there's already a come bet on this number
                         const existingComeBet = this.comeBets.find(bet => bet.point === rollTotal);
                         if (!existingComeBet) {
-                            this.addComeBet(rollTotal);
-                            rollDescription += ` - Come bet placed on ${rollTotal}`;
-                            
-                            // Update total bet to include the new come bet (just the come bet amount, odds will be added when it establishes)
-                            totalBet += this.passLineBet;
+                            // Check if this is a valid come bet number (4,5,6,8,9,10)
+                            if ([4, 5, 6, 8, 9, 10].includes(rollTotal)) {
+                                this.addComeBet(rollTotal);
+                                rollDescription += ` - Come bet placed on ${rollTotal}`;
+                                
+                                // Update total bet to include the new come bet (just the come bet amount, odds will be added when it establishes)
+                                totalBet += this.passLineBet;
+                            } else if (rollTotal === 7 || rollTotal === 11) {
+                                // Come bet wins immediately on 7/11
+                                rollDescription += ` - Come bet wins (${rollTotal})`;
+                                totalWin += this.passLineBet;
+                            } else if (rollTotal === 2 || rollTotal === 3 || rollTotal === 12) {
+                                // Come bet loses immediately on 2/3/12
+                                rollDescription += ` - Come bet loses (${rollTotal})`;
+                                totalWin -= this.passLineBet;
+                            }
                         }
                     }
                 }
@@ -1155,36 +1166,50 @@ class CrapsSimulator {
             }
             
             // Add come bet payout information for progressive come strategy
-            if (this.betType === 'progressiveCome' && roll.description && roll.description.includes('Come bet') && roll.description.includes('wins')) {
-                const comePoint = roll.description.match(/Come bet (\d+) wins/);
-                if (comePoint) {
-                    const comePointNum = parseInt(comePoint[1]);
+            if (this.betType === 'progressiveCome' && roll.description) {
+                // Handle immediate come bet wins (7/11)
+                if (roll.description.includes('Come bet wins (7)') || roll.description.includes('Come bet wins (11)')) {
                     const comeBetAmount = this.passLineBet;
-                    const comeOddsMultiplier = this.getOddsMultiplierForPoint(comePointNum);
-                    const comeOddsAmount = comeBetAmount * comeOddsMultiplier;
-                    
-                    let comeOddsReturn = 0;
-                    switch (comePointNum) {
-                        case 4:
-                        case 10:
-                            comeOddsReturn = comeOddsAmount * 3; // 2:1 odds
-                            break;
-                        case 5:
-                        case 9:
-                            comeOddsReturn = comeOddsAmount * 2.5; // 3:2 odds
-                            break;
-                        case 6:
-                        case 8:
-                            comeOddsReturn = comeOddsAmount * 2.2; // 6:5 odds
-                            break;
-                    }
-                    
                     const comeBetReturn = comeBetAmount * 2; // Come bet pays 1:1
                     
                     if (payoutText) {
-                        payoutText += `, Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}, $${comeOddsAmount} returns $${comeOddsReturn.toFixed(0)}`;
+                        payoutText += `, Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}`;
                     } else {
-                        payoutText = `Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}, $${comeOddsAmount} returns $${comeOddsReturn.toFixed(0)}`;
+                        payoutText = `Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}`;
+                    }
+                }
+                // Handle come bet point wins
+                else if (roll.description.includes('Come bet') && roll.description.includes('wins')) {
+                    const comePoint = roll.description.match(/Come bet (\d+) wins/);
+                    if (comePoint) {
+                        const comePointNum = parseInt(comePoint[1]);
+                        const comeBetAmount = this.passLineBet;
+                        const comeOddsMultiplier = this.getOddsMultiplierForPoint(comePointNum);
+                        const comeOddsAmount = comeBetAmount * comeOddsMultiplier;
+                        
+                        let comeOddsReturn = 0;
+                        switch (comePointNum) {
+                            case 4:
+                            case 10:
+                                comeOddsReturn = comeOddsAmount * 3; // 2:1 odds
+                                break;
+                            case 5:
+                            case 9:
+                                comeOddsReturn = comeOddsAmount * 2.5; // 3:2 odds
+                                break;
+                            case 6:
+                            case 8:
+                                comeOddsReturn = comeOddsAmount * 2.2; // 6:5 odds
+                                break;
+                        }
+                        
+                        const comeBetReturn = comeBetAmount * 2; // Come bet pays 1:1
+                        
+                        if (payoutText) {
+                            payoutText += `, Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}, $${comeOddsAmount} returns $${comeOddsReturn.toFixed(0)}`;
+                        } else {
+                            payoutText = `Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}, $${comeOddsAmount} returns $${comeOddsReturn.toFixed(0)}`;
+                        }
                     }
                 }
             }
