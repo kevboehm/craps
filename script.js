@@ -615,7 +615,7 @@ class CrapsSimulator {
                 const adjustedPassLineBet = this.currentBankroll;
                 totalBet = adjustedPassLineBet;
                 
-                if (this.betType === 'pass') {
+                if (this.betType === 'pass' || this.betType === 'progressiveCome') {
                     if (this.isPassLineWin(rollTotal)) {
                         passLineResult = adjustedPassLineBet;
                         rollDescription = 'Pass Line Win (Adjusted Bet)';
@@ -649,7 +649,7 @@ class CrapsSimulator {
                 // Normal betting
                 totalBet = this.passLineBet;
                 
-                if (this.betType === 'pass') {
+                if (this.betType === 'pass' || this.betType === 'progressiveCome') {
                     if (this.isPassLineWin(rollTotal)) {
                         passLineResult = this.passLineBet;
                         rollDescription = 'Pass Line Win';
@@ -709,7 +709,7 @@ class CrapsSimulator {
                 totalBet = intendedBet;
             }
             
-            if (this.betType === 'pass') {
+            if (this.betType === 'pass' || this.betType === 'progressiveCome') {
                 if (this.isPassLineWin(rollTotal)) {
                     if (totalBet === this.currentBankroll) {
                         // Adjusted bet - calculate proportional winnings
@@ -742,16 +742,16 @@ class CrapsSimulator {
                     this.comeOutPhase = true;
                 } else {
                     rollDescription = `Point ${this.point} - No Decision`;
+                }
+                
+                // For progressive come strategy, place a come bet on every point roll (except when point is hit)
+                if (this.betType === 'progressiveCome' && !this.comeOutPhase && rollTotal !== 7) {
+                    // Place a come bet on this roll
+                    this.addComeBet(rollTotal);
+                    rollDescription += ` - Come bet placed on ${rollTotal}`;
                     
-                    // For progressive come strategy, check if we should place a come bet
-                    if (this.betType === 'progressiveCome' && !this.comeOutPhase) {
-                        // Place a come bet on this roll
-                        this.addComeBet(rollTotal);
-                        rollDescription += ` - Come bet placed on ${rollTotal}`;
-                        
-                        // Update total bet to include the new come bet
-                        totalBet += this.passLineBet + (this.passLineBet * this.getOddsMultiplierForPoint(rollTotal));
-                    }
+                    // Update total bet to include the new come bet
+                    totalBet += this.passLineBet + (this.passLineBet * this.getOddsMultiplierForPoint(rollTotal));
                 }
                 
                 // Handle come bet wins and losses for progressive come strategy
@@ -1048,7 +1048,7 @@ class CrapsSimulator {
             console.log(`Processing win: wasComeOutRoll=${roll.wasComeOutRoll}, total=${roll.total}, point=${this.point}`);
             if (roll.wasComeOutRoll) {
                 console.log('Come out roll win');
-                if (this.betType === 'pass') {
+                if (this.betType === 'pass' || this.betType === 'progressiveCome') {
                     payoutText = `$${this.passLineBet} returns $${this.passLineBet * 2}`;
                 } else {
                     payoutText = `$${this.passLineBet} returns $${this.passLineBet * 2}`;
@@ -1077,7 +1077,7 @@ class CrapsSimulator {
                     actualOddsBet = intendedOddsBet;
                 }
                 
-                if (this.betType === 'pass') {
+                if (this.betType === 'pass' || this.betType === 'progressiveCome') {
                     let passReturn = actualPassLineBet * 2; // Pass line pays 1:1
                     let oddsReturn = 0;
                     
