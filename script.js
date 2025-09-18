@@ -434,14 +434,40 @@ class CrapsSimulator {
         let comeBetResults = 0;
         let comeBetDescription = '';
         
-        // First, check for wins on existing come bet points
+        // First, place a new come bet BEFORE evaluating this roll
+        if (!this.comeOutPhase && rollTotal !== this.point) {
+            // Don't place come bet on the main point or if there's already a come bet on this number
+            const existingComeBet = this.comeBets.find(bet => bet.point === rollTotal);
+            if (!existingComeBet) {
+                // Always place a come bet on any roll (except main point)
+                if (rollTotal === 7 || rollTotal === 11) {
+                    // Come bet wins immediately on 7/11
+                    comeBetDescription = `Come bet wins (${rollTotal})`;
+                    comeBetResults += this.passLineBet;
+                } else if (rollTotal === 2 || rollTotal === 3 || rollTotal === 12) {
+                    // Come bet loses immediately on 2/3/12
+                    comeBetDescription = `Come bet loses (${rollTotal})`;
+                    comeBetResults -= this.passLineBet;
+                } else {
+                    // Come bet establishes point (4,5,6,8,9,10)
+                    this.addComeBet(rollTotal);
+                    comeBetDescription = `Come bet placed on ${rollTotal}`;
+                }
+            }
+        }
+        
+        // Then, check for wins on existing come bet points
         const comeBetsOnRoll = this.getComeBetsOnPoint(rollTotal);
         if (comeBetsOnRoll.length > 0) {
             for (const comeBet of comeBetsOnRoll) {
                 comeBetResults += comeBet.betAmount + this.calculateOddsPayout(rollTotal, comeBet.oddsAmount);
                 this.removeComeBet(rollTotal);
             }
-            comeBetDescription = `Come bet ${rollTotal} wins`;
+            if (comeBetDescription) {
+                comeBetDescription += `, Come bet ${rollTotal} wins`;
+            } else {
+                comeBetDescription = `Come bet ${rollTotal} wins`;
+            }
         }
         
         // Then, handle 7-out (lose all existing come bets)
@@ -455,28 +481,6 @@ class CrapsSimulator {
                     comeBetDescription += ', Come bets lose (7 out)';
                 } else {
                     comeBetDescription = 'Come bets lose (7 out)';
-                }
-            }
-        }
-        
-        // Place a new come bet on this roll (after checking for wins/losses)
-        if (!this.comeOutPhase && rollTotal !== this.point) {
-            // Don't place come bet on the main point or if there's already a come bet on this number
-            const existingComeBet = this.comeBets.find(bet => bet.point === rollTotal);
-            if (!existingComeBet) {
-                // Always place a come bet on any roll (except main point)
-                if (rollTotal === 7 || rollTotal === 11) {
-                    // Come bet wins immediately on 7/11
-                    comeBetDescription += comeBetDescription ? `, Come bet wins (${rollTotal})` : `Come bet wins (${rollTotal})`;
-                    comeBetResults += this.passLineBet;
-                } else if (rollTotal === 2 || rollTotal === 3 || rollTotal === 12) {
-                    // Come bet loses immediately on 2/3/12
-                    comeBetDescription += comeBetDescription ? `, Come bet loses (${rollTotal})` : `Come bet loses (${rollTotal})`;
-                    comeBetResults -= this.passLineBet;
-                } else {
-                    // Come bet establishes point (4,5,6,8,9,10)
-                    this.addComeBet(rollTotal);
-                    comeBetDescription += comeBetDescription ? `, Come bet placed on ${rollTotal}` : `Come bet placed on ${rollTotal}`;
                 }
             }
         }
