@@ -998,6 +998,30 @@ class CrapsSimulator {
             notes.push(`Point is ${roll.total}`);
         }
         
+        // Add come bet information for progressive come strategy
+        if (this.betType === 'progressiveCome') {
+            // Check if come bet was placed
+            if (roll.description && roll.description.includes('Come bet placed')) {
+                const comePoint = roll.description.match(/Come bet placed on (\d+)/);
+                if (comePoint) {
+                    notes.push(`Come bet placed on ${comePoint[1]}`);
+                }
+            }
+            
+            // Check if come bet won
+            if (roll.description && roll.description.includes('Come bet') && roll.description.includes('wins')) {
+                const comePoint = roll.description.match(/Come bet (\d+) wins/);
+                if (comePoint) {
+                    notes.push(`Come bet ${comePoint[1]} wins`);
+                }
+            }
+            
+            // Check if come bets lost
+            if (roll.description && roll.description.includes('Come bets lose')) {
+                notes.push('Come bets lose (7 out)');
+            }
+        }
+        
         // Add ruin indicator
         if (roll.isRuin) {
             notes.push('💀 RUIN!');
@@ -1097,6 +1121,41 @@ class CrapsSimulator {
                         payoutText = `$${actualPassLineBet.toFixed(0)} returns $${passReturn.toFixed(0)}, $${actualOddsBet.toFixed(0)} returns $${oddsReturn.toFixed(0)}`;
                     } else {
                         payoutText = `$${actualPassLineBet.toFixed(0)} returns $${passReturn.toFixed(0)}`;
+                    }
+                }
+            }
+            
+            // Add come bet payout information for progressive come strategy
+            if (this.betType === 'progressiveCome' && roll.description && roll.description.includes('Come bet') && roll.description.includes('wins')) {
+                const comePoint = roll.description.match(/Come bet (\d+) wins/);
+                if (comePoint) {
+                    const comePointNum = parseInt(comePoint[1]);
+                    const comeBetAmount = this.passLineBet;
+                    const comeOddsMultiplier = this.getOddsMultiplierForPoint(comePointNum);
+                    const comeOddsAmount = comeBetAmount * comeOddsMultiplier;
+                    
+                    let comeOddsReturn = 0;
+                    switch (comePointNum) {
+                        case 4:
+                        case 10:
+                            comeOddsReturn = comeOddsAmount * 3; // 2:1 odds
+                            break;
+                        case 5:
+                        case 9:
+                            comeOddsReturn = comeOddsAmount * 2.5; // 3:2 odds
+                            break;
+                        case 6:
+                        case 8:
+                            comeOddsReturn = comeOddsAmount * 2.2; // 6:5 odds
+                            break;
+                    }
+                    
+                    const comeBetReturn = comeBetAmount * 2; // Come bet pays 1:1
+                    
+                    if (payoutText) {
+                        payoutText += `, Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}, $${comeOddsAmount} returns $${comeOddsReturn.toFixed(0)}`;
+                    } else {
+                        payoutText = `Come: $${comeBetAmount} returns $${comeBetReturn.toFixed(0)}, $${comeOddsAmount} returns $${comeOddsReturn.toFixed(0)}`;
                     }
                 }
             }
