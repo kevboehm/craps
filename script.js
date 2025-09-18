@@ -781,12 +781,23 @@ class CrapsSimulator {
                     }
                     
                     // Check for come bet losses (rolling 7)
-                    if (rollTotal === 7 && this.comeBets.length > 0) {
-                        for (const comeBet of this.comeBets) {
-                            comeBetResults -= comeBet.betAmount + comeBet.oddsAmount;
+                    if (rollTotal === 7) {
+                        // First, lose all existing come bets
+                        if (this.comeBets.length > 0) {
+                            for (const comeBet of this.comeBets) {
+                                comeBetResults -= comeBet.betAmount + comeBet.oddsAmount;
+                            }
+                            this.clearAllComeBets();
+                            comeBetDescription = 'Come bets lose (7 out)';
                         }
-                        this.clearAllComeBets();
-                        comeBetDescription = 'Come bets lose (7 out)';
+                        
+                        // Then, win immediately on new come bet (7 wins immediately)
+                        comeBetResults += this.passLineBet;
+                        if (comeBetDescription) {
+                            comeBetDescription += ', Come bet wins (7)';
+                        } else {
+                            comeBetDescription = 'Come bet wins (7)';
+                        }
                     }
                     
                     if (comeBetResults !== 0) {
