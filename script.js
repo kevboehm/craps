@@ -691,11 +691,6 @@ class CrapsSimulator {
             const actualOddsBet = this.passLineBet * oddsMultiplier;
             const intendedBet = this.passLineBet + actualOddsBet;
             
-            // Add existing come bet amounts to total bet for progressive come strategy
-            if (this.betType === 'progressiveCome') {
-                totalBet += this.getTotalComeBetAmount();
-            }
-            
             // Check if this bet would cause ruin and adjust if necessary
             if (this.currentBankroll - intendedBet < 0) {
                 // Reduce bet to leave exactly $0 bankroll
@@ -707,6 +702,11 @@ class CrapsSimulator {
                 oddsResult = 0; // Will be calculated based on actual bet
             } else {
                 totalBet = intendedBet;
+                
+                // Add existing come bet amounts to total bet for progressive come strategy
+                if (this.betType === 'progressiveCome') {
+                    totalBet += this.getTotalComeBetAmount();
+                }
             }
             
             if (this.betType === 'pass' || this.betType === 'progressiveCome') {
