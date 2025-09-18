@@ -530,6 +530,12 @@ body {
   -webkit-overflow-scrolling: touch;
   max-height: 400px;
   position: relative;
+  width: 100%;
+}
+
+.table-scroll-container > * {
+  width: max-content;
+  min-width: 100%;
 }
 
 .table-scroll-container::-webkit-scrollbar {
@@ -560,7 +566,7 @@ body {
 .simulation-table {
   display: grid;
   grid-template-columns: 60px 80px 100px 100px 100px;
-  min-width: 440px;
+  width: 440px;
   background: white;
 }
 
@@ -774,7 +780,7 @@ body {
 .history-container {
   display: grid;
   grid-template-columns: 50px 80px 60px 80px 100px 100px 120px 100px;
-  min-width: 690px;
+  width: 690px;
   background: white;
 }
 
