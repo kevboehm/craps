@@ -23,6 +23,10 @@ class CrapsSimulator {
         this.ruinSimulations = 0;
         this.maxProfit = 0;
         
+        // Come bet tracking for progressive come strategy
+        this.comeBets = []; // Array of {point: number, betAmount: number, oddsAmount: number}
+        this.comeBetAmount = 0;
+        
         this.initializeEventListeners();
         this.initializeAnimations();
     }
@@ -371,6 +375,46 @@ class CrapsSimulator {
         }
     }
     
+    // Come bet management methods
+    addComeBet(point) {
+        if (this.betType === 'progressiveCome') {
+            const comeBetAmount = this.passLineBet;
+            const oddsMultiplier = this.getOddsMultiplierForPoint(point);
+            const oddsAmount = comeBetAmount * oddsMultiplier;
+            
+            this.comeBets.push({
+                point: point,
+                betAmount: comeBetAmount,
+                oddsAmount: oddsAmount
+            });
+            
+            this.comeBetAmount += comeBetAmount + oddsAmount;
+        }
+    }
+    
+    removeComeBet(point) {
+        if (this.betType === 'progressiveCome') {
+            const comeBetIndex = this.comeBets.findIndex(bet => bet.point === point);
+            if (comeBetIndex !== -1) {
+                const removedBet = this.comeBets.splice(comeBetIndex, 1)[0];
+                this.comeBetAmount -= removedBet.betAmount + removedBet.oddsAmount;
+            }
+        }
+    }
+    
+    getTotalComeBetAmount() {
+        return this.comeBetAmount;
+    }
+    
+    getComeBetsOnPoint(point) {
+        return this.comeBets.filter(bet => bet.point === point);
+    }
+    
+    clearAllComeBets() {
+        this.comeBets = [];
+        this.comeBetAmount = 0;
+    }
+    
     getOddsMultiplierForPoint(point) {
         if (this.oddsMultiplier === '2x') {
             return 2; // 2x odds for all points
@@ -561,6 +605,11 @@ class CrapsSimulator {
         let totalWin = 0;
         let rollDescription = '';
         
+        // Add come bet amounts to total bet for progressive come strategy
+        if (this.betType === 'progressiveCome') {
+            totalBet += this.getTotalComeBetAmount();
+        }
+        
         if (this.isComeOutRoll()) {
             // Come out roll
             // Check if pass line bet would cause ruin
@@ -615,6 +664,11 @@ class CrapsSimulator {
                         this.point = rollTotal;
                         this.comeOutPhase = false;
                         rollDescription = `Point ${this.point} Established`;
+                        
+                        // For progressive come strategy, place a come bet on the next roll
+                        if (this.betType === 'progressiveCome') {
+                            rollDescription += ' - Come bet placed';
+                        }
                     }
                 } else {
                     if (this.isDontPassWin(rollTotal)) {
@@ -686,6 +740,45 @@ class CrapsSimulator {
                     this.comeOutPhase = true;
                 } else {
                     rollDescription = `Point ${this.point} - No Decision`;
+                    
+                    // For progressive come strategy, check if we should place a come bet
+                    if (this.betType === 'progressiveCome' && !this.comeOutPhase) {
+                        // Place a come bet on this roll
+                        this.addComeBet(rollTotal);
+                        rollDescription += ` - Come bet placed on ${rollTotal}`;
+                    }
+                }
+                
+                // Handle come bet wins and losses for progressive come strategy
+                if (this.betType === 'progressiveCome') {
+                    let comeBetResults = 0;
+                    let comeBetDescription = '';
+                    
+                    // Check for come bet wins (rolling a come bet point)
+                    const comeBetsOnRoll = this.getComeBetsOnPoint(rollTotal);
+                    if (comeBetsOnRoll.length > 0) {
+                        for (const comeBet of comeBetsOnRoll) {
+                            comeBetResults += comeBet.betAmount + this.calculateOddsPayout(rollTotal, comeBet.oddsAmount);
+                            this.removeComeBet(rollTotal);
+                        }
+                        comeBetDescription = `Come bet ${rollTotal} wins`;
+                    }
+                    
+                    // Check for come bet losses (rolling 7)
+                    if (rollTotal === 7 && this.comeBets.length > 0) {
+                        for (const comeBet of this.comeBets) {
+                            comeBetResults -= comeBet.betAmount + comeBet.oddsAmount;
+                        }
+                        this.clearAllComeBets();
+                        comeBetDescription = 'Come bets lose (7 out)';
+                    }
+                    
+                    if (comeBetResults !== 0) {
+                        totalWin += comeBetResults;
+                        if (comeBetDescription) {
+                            rollDescription += ` - ${comeBetDescription}`;
+                        }
+                    }
                 }
             } else {
                 if (this.isDontPassWin(rollTotal)) {
@@ -1095,6 +1188,9 @@ class CrapsSimulator {
         this.losingSimulations = 0;
         this.ruinSimulations = 0;
         this.maxProfit = 0;
+        
+        // Reset come bets
+        this.clearAllComeBets();
         
         // Update stats
         setTimeout(() => {
