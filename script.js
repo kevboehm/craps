@@ -744,22 +744,12 @@ class CrapsSimulator {
                     rollDescription = `Point ${this.point} - No Decision`;
                 }
                 
-                // For progressive come strategy, place a come bet on every point roll (except when point is hit)
-                if (this.betType === 'progressiveCome' && !this.comeOutPhase && rollTotal !== 7) {
-                    // Place a come bet on this roll
-                    this.addComeBet(rollTotal);
-                    rollDescription += ` - Come bet placed on ${rollTotal}`;
-                    
-                    // Update total bet to include the new come bet
-                    totalBet += this.passLineBet + (this.passLineBet * this.getOddsMultiplierForPoint(rollTotal));
-                }
-                
                 // Handle come bet wins and losses for progressive come strategy
                 if (this.betType === 'progressiveCome') {
                     let comeBetResults = 0;
                     let comeBetDescription = '';
                     
-                    // Check for come bet wins (rolling a come bet point)
+                    // Check for come bet wins (rolling a come bet point that was established earlier)
                     const comeBetsOnRoll = this.getComeBetsOnPoint(rollTotal);
                     if (comeBetsOnRoll.length > 0) {
                         for (const comeBet of comeBetsOnRoll) {
@@ -783,6 +773,16 @@ class CrapsSimulator {
                         if (comeBetDescription) {
                             rollDescription += ` - ${comeBetDescription}`;
                         }
+                    }
+                    
+                    // Place a new come bet on this roll (after checking for wins/losses)
+                    if (!this.comeOutPhase && rollTotal !== 7 && rollTotal !== this.point) {
+                        // Don't place come bet on the main point or 7
+                        this.addComeBet(rollTotal);
+                        rollDescription += ` - Come bet placed on ${rollTotal}`;
+                        
+                        // Update total bet to include the new come bet
+                        totalBet += this.passLineBet + (this.passLineBet * this.getOddsMultiplierForPoint(rollTotal));
                     }
                 }
             } else {

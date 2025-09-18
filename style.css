@@ -779,8 +779,8 @@ body {
 /* History Table */
 .history-container {
   display: grid;
-  grid-template-columns: 50px 80px 60px 80px 100px 100px 120px 100px;
-  width: 690px;
+  grid-template-columns: 50px 80px 60px 80px 100px 100px 120px 150px;
+  width: 740px;
   background: white;
 }
 
@@ -968,8 +968,8 @@ body {
   }
   
   .history-container {
-    grid-template-columns: 60px 100px 80px 100px 120px 120px 150px 120px;
-    min-width: 850px;
+    grid-template-columns: 60px 100px 80px 100px 120px 120px 150px 180px;
+    min-width: 910px;
   }
 }
 
