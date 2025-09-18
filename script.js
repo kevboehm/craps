@@ -605,10 +605,7 @@ class CrapsSimulator {
         let totalWin = 0;
         let rollDescription = '';
         
-        // Add come bet amounts to total bet for progressive come strategy
-        if (this.betType === 'progressiveCome') {
-            totalBet += this.getTotalComeBetAmount();
-        }
+        // For progressive come strategy, we'll add come bet amounts later after determining if a new come bet should be placed
         
         if (this.isComeOutRoll()) {
             // Come out roll
@@ -694,6 +691,11 @@ class CrapsSimulator {
             const actualOddsBet = this.passLineBet * oddsMultiplier;
             const intendedBet = this.passLineBet + actualOddsBet;
             
+            // Add existing come bet amounts to total bet for progressive come strategy
+            if (this.betType === 'progressiveCome') {
+                totalBet += this.getTotalComeBetAmount();
+            }
+            
             // Check if this bet would cause ruin and adjust if necessary
             if (this.currentBankroll - intendedBet < 0) {
                 // Reduce bet to leave exactly $0 bankroll
@@ -746,6 +748,9 @@ class CrapsSimulator {
                         // Place a come bet on this roll
                         this.addComeBet(rollTotal);
                         rollDescription += ` - Come bet placed on ${rollTotal}`;
+                        
+                        // Update total bet to include the new come bet
+                        totalBet += this.passLineBet + (this.passLineBet * this.getOddsMultiplierForPoint(rollTotal));
                     }
                 }
                 
