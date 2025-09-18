@@ -842,6 +842,7 @@ class CrapsSimulator {
             
             if (this.ruinReached) {
                 this.ruinSimulations++;
+                this.losingSimulations++; // Ruin counts as a loss
             } else if (this.runningTotal > 0) {
                 this.winningSimulations++;
             } else {
@@ -1158,52 +1159,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add loading animation
     document.body.classList.add('loaded');
     
-    // Add keyboard shortcut hints
-    const shortcuts = document.createElement('div');
-    shortcuts.className = 'keyboard-shortcuts';
-    shortcuts.innerHTML = `
-        <div class="shortcut-hint">
-            <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to simulate
-        </div>
-        <div class="shortcut-hint">
-            <kbd>Esc</kbd> to clear history
-        </div>
-    `;
-    
-    // Add shortcut styles
-    const shortcutStyles = document.createElement('style');
-    shortcutStyles.textContent = `
-        .keyboard-shortcuts {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--secondary-800);
-            color: white;
-            padding: var(--space-3);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-xs);
-            opacity: 0.8;
-            z-index: 1000;
-        }
-        .shortcut-hint {
-            margin-bottom: var(--space-1);
-        }
-        .shortcut-hint:last-child {
-            margin-bottom: 0;
-        }
-        kbd {
-            background: var(--secondary-600);
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-    `;
-    document.head.appendChild(shortcutStyles);
-    document.body.appendChild(shortcuts);
-    
-    // Hide shortcuts after 5 seconds
-    setTimeout(() => {
-        shortcuts.style.opacity = '0';
-        setTimeout(() => shortcuts.remove(), 500);
-    }, 5000);
 });
