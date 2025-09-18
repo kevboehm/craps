@@ -830,6 +830,9 @@ class CrapsSimulator {
                     if (comeBetResult.description) {
                         rollDescription += ` - ${comeBetResult.description}`;
                     }
+                    
+                    // Update total bet to include all active come bets
+                    totalBet += this.getTotalComeBetAmount();
                 }
             } else {
                 if (this.isDontPassWin(rollTotal)) {
