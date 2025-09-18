@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Craps Simulator - Professional Casino Experience</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Craps Simulator">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="dice-icon">🎲</div>
+                    <h1 class="app-title">Craps Simulator</h1>
+                </div>
+                <p class="app-subtitle">Professional Casino Experience</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Configuration Panel -->
+            <section class="config-panel" aria-labelledby="config-heading">
+                <div class="panel-header">
+                    <h2 id="config-heading" class="panel-title">Betting Configuration</h2>
+                    <div class="panel-subtitle">Configure your betting strategy</div>
+                </div>
+
+                <div class="config-grid">
+                    <!-- Bet Type Selection -->
+                    <div class="config-group bet-type-group">
+                        <label class="config-label">Bet Type</label>
+                        <div class="bet-type-selector" role="radiogroup" aria-labelledby="bet-type-label">
+                            <div class="radio-option">
+                                <input type="radio" id="pass-line" name="betType" value="pass" checked>
+                                <label for="pass-line" class="radio-label">
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-text">Pass Line</span>
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="dont-pass" name="betType" value="dontPass">
+                                <label for="dont-pass" class="radio-label">
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-text">Don't Pass</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bet Amount & Bankroll Row -->
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="passLineBet" class="config-label">Pass Line Bet</label>
+                            <div class="input-group">
+                                <span class="input-prefix">$</span>
+                                <input type="number" id="passLineBet" value="10" min="1" step="1" 
+                                       class="config-input" aria-describedby="bet-help">
+                            </div>
+                            <div id="bet-help" class="input-help">Min: $1</div>
+                        </div>
+
+                        <div class="config-group">
+                            <label for="bankroll" class="config-label">Starting Bankroll</label>
+                            <div class="input-group">
+                                <span class="input-prefix">$</span>
+                                <input type="number" id="bankroll" value="1000" min="1" step="1" 
+                                       class="config-input" aria-describedby="bankroll-help">
+                            </div>
+                            <div id="bankroll-help" class="input-help">Ruin threshold</div>
+                        </div>
+                    </div>
+
+                    <!-- Odds Configuration -->
+                    <div class="config-group">
+                        <label for="oddsMultiplier" class="config-label">Odds Multiplier</label>
+                        <select id="oddsMultiplier" class="config-select" aria-describedby="odds-help">
+                            <option value="2x">2x Odds (all points)</option>
+                            <option value="3/4/5x">3/4/5x Odds (varies by point)</option>
+                        </select>
+                        <div id="odds-help" class="input-help">Higher odds = higher risk/reward</div>
+                    </div>
+
+                    <!-- Simulation Settings Row -->
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="numRolls" class="config-label">Rolls per Simulation</label>
+                            <div class="input-group">
+                                <input type="number" id="numRolls" value="100" min="1" step="1" 
+                                       class="config-input" aria-describedby="rolls-help">
+                                <span class="input-suffix">rolls</span>
+                            </div>
+                            <div id="rolls-help" class="input-help">Per simulation</div>
+                        </div>
+
+                        <div class="config-group">
+                            <label for="numSimulations" class="config-label">Number of Simulations</label>
+                            <div class="input-group">
+                                <input type="number" id="numSimulations" value="1" min="1" step="1" 
+                                       class="config-input" aria-describedby="simulations-help">
+                                <span class="input-suffix">sims</span>
+                            </div>
+                            <div id="simulations-help" class="input-help">Multiple runs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="startSimulation" class="simulate-button">
+                    <span class="button-icon">▶</span>
+                    <span class="button-text">Start Simulation</span>
+                </button>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" aria-labelledby="results-heading">
+                <div class="panel-header">
+                    <h2 id="results-heading" class="panel-title">Simulation Results</h2>
+                    <div class="panel-subtitle">Track your performance</div>
+                </div>
+
+                <!-- Total Simulation Results -->
+                <div class="total-results-section" id="totalResultsSection" style="display: none;">
+                    <h3 class="section-title">Total Simulation Results</h3>
+                    <div class="total-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Simulations</div>
+                                <div class="stat-value" id="totalSimulations">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Winning Simulations</div>
+                                <div class="stat-value" id="winningSimulations">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">❌</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Losing Simulations</div>
+                                <div class="stat-value" id="losingSimulations">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💀</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Simulations Ending in Ruin</div>
+                                <div class="stat-value" id="ruinSimulations">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-card-highlight">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Max Profit</div>
+                                <div class="stat-value" id="maxProfit">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Individual Simulation Results Table -->
+                <div class="simulation-results-section" id="simulationResultsSection" style="display: none;">
+                    <h3 class="section-title">Individual Simulation Results</h3>
+                    <div class="table-scroll-container">
+                        <div class="simulation-table" role="table" aria-label="Simulation results table">
+                            <div class="simulation-header-row" role="row">
+                                <div class="simulation-cell" role="columnheader">#</div>
+                                <div class="simulation-cell" role="columnheader">Rolls</div>
+                                <div class="simulation-cell" role="columnheader">P/L</div>
+                                <div class="simulation-cell" role="columnheader">Max</div>
+                                <div class="simulation-cell" role="columnheader">Min</div>
+                            </div>
+                            <div id="simulationResults" class="simulation-body" role="rowgroup"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Rolls</div>
+                            <div class="stat-value" id="totalRolls">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card-highlight">
+                        <div class="stat-icon">💎</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Profit/Loss</div>
+                            <div class="stat-value" id="netResult">$0.00</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Max Bankroll</div>
+                            <div class="stat-value" id="maxBankroll">$0.00</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📉</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Min Bankroll</div>
+                            <div class="stat-value" id="minBankroll">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roll History -->
+                <div class="history-section">
+                    <div class="history-header">
+                        <h3 class="history-title">Roll History</h3>
+                        <div class="history-controls">
+                            <button id="clearHistory" class="clear-button" aria-label="Clear roll history">
+                                <span class="button-icon">🗑</span>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-scroll-container">
+                        <div class="history-container" role="table" aria-label="Roll history table">
+                            <div class="history-header-row" role="row">
+                                <div class="history-cell" role="columnheader">#</div>
+                                <div class="history-cell" role="columnheader">Dice</div>
+                                <div class="history-cell" role="columnheader">Total</div>
+                                <div class="history-cell" role="columnheader">Bet</div>
+                                <div class="history-cell" role="columnheader">Result</div>
+                                <div class="history-cell" role="columnheader">Balance</div>
+                                <div class="history-cell" role="columnheader">Payout</div>
+                                <div class="history-cell" role="columnheader">Notes</div>
+                            </div>
+                            <div id="rollHistory" class="history-body" role="rowgroup"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p class="footer-text">For entertainment purposes only. Not affiliated with any casino.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
