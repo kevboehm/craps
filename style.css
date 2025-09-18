@@ -523,14 +523,17 @@ body {
 
 /* Table Scroll Container */
 .table-scroll-container {
-  overflow-x: auto;
+  overflow: auto;
   border-radius: var(--radius-lg);
   border: 1px solid var(--secondary-200);
   background: white;
   -webkit-overflow-scrolling: touch;
+  max-height: 400px;
+  position: relative;
 }
 
 .table-scroll-container::-webkit-scrollbar {
+  width: 8px;
   height: 8px;
 }
 
@@ -542,10 +545,15 @@ body {
 .table-scroll-container::-webkit-scrollbar-thumb {
   background: var(--secondary-300);
   border-radius: var(--radius-full);
+  transition: background-color 0.2s ease;
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb:hover {
   background: var(--secondary-400);
+}
+
+.table-scroll-container::-webkit-scrollbar-corner {
+  background: var(--secondary-100);
 }
 
 /* Simulation Table */
@@ -553,24 +561,29 @@ body {
   display: grid;
   grid-template-columns: 60px 80px 100px 100px 100px;
   min-width: 440px;
+  background: white;
 }
 
 .simulation-header-row {
   display: contents;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .simulation-header-row .simulation-cell {
-  background: var(--primary-600);
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
   color: white;
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);
-  padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid var(--primary-700);
+  padding: var(--space-4) var(--space-3);
+  border-bottom: 2px solid var(--primary-800);
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .simulation-body {
@@ -588,10 +601,12 @@ body {
 
 .simulation-row:hover {
   background: var(--primary-50);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .simulation-cell {
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--secondary-200);
   display: flex;
   align-items: center;
@@ -599,26 +614,32 @@ body {
   font-size: var(--font-size-sm);
   color: var(--secondary-900);
   font-weight: var(--font-weight-medium);
+  transition: var(--transition-fast);
 }
 
 .simulation-cell:first-child {
   font-weight: var(--font-weight-semibold);
   color: var(--primary-600);
+  background: var(--primary-50);
 }
 
 .simulation-cell.positive {
   color: var(--success-600);
   font-weight: var(--font-weight-semibold);
+  background: var(--success-50);
 }
 
 .simulation-cell.negative {
   color: var(--error-600);
   font-weight: var(--font-weight-semibold);
+  background: var(--error-50);
 }
 
 .simulation-cell.ruin {
   color: var(--error-600);
   font-weight: var(--font-weight-semibold);
+  background: var(--error-50);
+  animation: pulse 1s ease-in-out;
 }
 
 /* Stats Grid */
@@ -754,24 +775,29 @@ body {
   display: grid;
   grid-template-columns: 50px 80px 60px 80px 100px 100px 120px 100px;
   min-width: 690px;
+  background: white;
 }
 
 .history-header-row {
   display: contents;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .history-header-row .history-cell {
-  background: var(--primary-600);
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
   color: white;
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);
-  padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid var(--primary-700);
+  padding: var(--space-4) var(--space-3);
+  border-bottom: 2px solid var(--primary-800);
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .history-body {
@@ -789,6 +815,8 @@ body {
 
 .roll-entry:hover {
   background: var(--primary-50);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .roll-entry.point-established {
@@ -796,6 +824,7 @@ body {
   border: 2px solid var(--primary-200);
   border-radius: var(--radius-md);
   margin: var(--space-1) 0;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 .roll-entry.ruin-reached {
@@ -804,6 +833,7 @@ body {
   border-radius: var(--radius-md);
   margin: var(--space-1) 0;
   animation: pulse 1s ease-in-out;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
 @keyframes pulse {
@@ -812,7 +842,7 @@ body {
 }
 
 .history-cell {
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--secondary-200);
   display: flex;
   align-items: center;
@@ -820,30 +850,35 @@ body {
   font-size: var(--font-size-sm);
   color: var(--secondary-900);
   font-weight: var(--font-weight-medium);
+  transition: var(--transition-fast);
 }
 
 .history-cell:first-child {
   font-weight: var(--font-weight-semibold);
   color: var(--primary-600);
+  background: var(--primary-50);
 }
 
 .history-cell.positive {
   color: var(--success-600);
   font-weight: var(--font-weight-semibold);
+  background: var(--success-50);
 }
 
 .history-cell.negative {
   color: var(--error-600);
   font-weight: var(--font-weight-semibold);
+  background: var(--error-50);
 }
 
 .dice-result {
   font-family: 'Courier New', monospace;
   font-weight: var(--font-weight-bold);
   background: var(--secondary-100);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-xs);
+  border: 1px solid var(--secondary-200);
 }
 
 .payout {
@@ -851,6 +886,10 @@ body {
   font-size: var(--font-size-xs);
   color: var(--secondary-600);
   font-weight: var(--font-weight-medium);
+  background: var(--secondary-50);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--secondary-200);
 }
 
 /* Footer */
@@ -970,6 +1009,35 @@ body {
   
   .simulate-button {
     border: 2px solid var(--primary-800);
+  }
+}
+
+/* Mobile Table Optimizations */
+@media (max-width: 768px) {
+  .table-scroll-container {
+    max-height: 300px;
+    border-radius: var(--radius-md);
+  }
+  
+  .history-cell, .simulation-cell {
+    font-size: 0.75rem;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .history-header-row .history-cell,
+  .simulation-header-row .simulation-cell {
+    font-size: 0.625rem;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .dice-result, .payout {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .roll-entry.point-established,
+  .roll-entry.ruin-reached {
+    margin: 0.25rem 0;
   }
 }
 
