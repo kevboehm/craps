@@ -379,16 +379,15 @@ class CrapsSimulator {
     addComeBet(point) {
         if (this.betType === 'progressiveCome') {
             const comeBetAmount = this.passLineBet;
-            const oddsMultiplier = this.getOddsMultiplierForPoint(point);
-            const oddsAmount = comeBetAmount * oddsMultiplier;
             
             this.comeBets.push({
                 point: point,
                 betAmount: comeBetAmount,
-                oddsAmount: oddsAmount
+                oddsAmount: 0 // Odds will be added on the next roll
             });
             
-            this.comeBetAmount += comeBetAmount + oddsAmount;
+            this.comeBetAmount += comeBetAmount; // Only add the come bet amount, not odds yet
+            console.log(`Debug: Added come bet on ${point}, amount: ${comeBetAmount}, total come bet amount: ${this.comeBetAmount}`);
         }
     }
     
@@ -413,6 +412,21 @@ class CrapsSimulator {
     clearAllComeBets() {
         this.comeBets = [];
         this.comeBetAmount = 0;
+    }
+    
+    addOddsToExistingComeBets() {
+        if (this.betType === 'progressiveCome') {
+            for (const comeBet of this.comeBets) {
+                if (comeBet.oddsAmount === 0) {
+                    // Add odds to this come bet
+                    const oddsMultiplier = this.getOddsMultiplierForPoint(comeBet.point);
+                    const oddsAmount = comeBet.betAmount * oddsMultiplier;
+                    comeBet.oddsAmount = oddsAmount;
+                    this.comeBetAmount += oddsAmount;
+                    console.log(`Debug: Added odds to come bet on ${comeBet.point}, odds amount: ${oddsAmount}, total come bet amount: ${this.comeBetAmount}`);
+                }
+            }
+        }
     }
     
     getOddsMultiplierForPoint(point) {
@@ -691,6 +705,11 @@ class CrapsSimulator {
             const actualOddsBet = this.passLineBet * oddsMultiplier;
             const intendedBet = this.passLineBet + actualOddsBet;
             
+            // Add odds to existing come bets (progressive come strategy)
+            if (this.betType === 'progressiveCome') {
+                this.addOddsToExistingComeBets();
+            }
+            
             // Check if this bet would cause ruin and adjust if necessary
             if (this.currentBankroll - intendedBet < 0) {
                 // Reduce bet to leave exactly $0 bankroll
@@ -705,7 +724,9 @@ class CrapsSimulator {
                 
                 // Add existing come bet amounts to total bet for progressive come strategy
                 if (this.betType === 'progressiveCome') {
+                    console.log(`Debug: Adding existing come bet amount: ${this.getTotalComeBetAmount()}`);
                     totalBet += this.getTotalComeBetAmount();
+                    console.log(`Debug: Total bet after adding existing come bets: ${totalBet}`);
                 }
             }
             
@@ -777,12 +798,15 @@ class CrapsSimulator {
                     
                     // Place a new come bet on this roll (after checking for wins/losses)
                     if (!this.comeOutPhase && rollTotal !== 7 && rollTotal !== this.point) {
-                        // Don't place come bet on the main point or 7
-                        this.addComeBet(rollTotal);
-                        rollDescription += ` - Come bet placed on ${rollTotal}`;
-                        
-                        // Update total bet to include the new come bet
-                        totalBet += this.passLineBet + (this.passLineBet * this.getOddsMultiplierForPoint(rollTotal));
+                        // Don't place come bet on the main point, 7, or if there's already a come bet on this number
+                        const existingComeBet = this.comeBets.find(bet => bet.point === rollTotal);
+                        if (!existingComeBet) {
+                            this.addComeBet(rollTotal);
+                            rollDescription += ` - Come bet placed on ${rollTotal}`;
+                            
+                            // Update total bet to include the new come bet (just the come bet amount, odds will be added when it establishes)
+                            totalBet += this.passLineBet;
+                        }
                     }
                 }
             } else {
